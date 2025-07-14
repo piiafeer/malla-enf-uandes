@@ -5,20 +5,78 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Malla Interactiva - Enfermería</title>
   <style>
-    body { font-family: sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
-    h1 { text-align: center; }
-    .semestre { margin-bottom: 20px; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .semestre h2 { margin-top: 0; cursor: pointer; }
-    ul { list-style: none; padding: 0; }
-    li { margin-bottom: 10px; padding: 10px; border-radius: 8px; background: #eee; display: flex; justify-content: space-between; align-items: center; }
-    button { border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
-    .pendiente { background-color: #ffd6d6; }
-    .curso { background-color: #fff8cc; }
-    .aprobado { background-color: #d6ffd6; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f9ff;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #1a4d8f;
+      margin-bottom: 10px;
+    }
+    .progreso {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .semestre {
+      margin-bottom: 25px;
+      padding: 20px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      transition: all 0.2s ease-in-out;
+    }
+    .semestre:hover {
+      transform: translateY(-2px);
+    }
+    .semestre h2 {
+      margin-top: 0;
+      font-size: 20px;
+      color: #1a4d8f;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      margin-bottom: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #eef2fa;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    button {
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+    .pendiente {
+      background-color: #ffd6d6;
+      color: #a30000;
+    }
+    .curso {
+      background-color: #fff8cc;
+      color: #8f6f00;
+    }
+    .aprobado {
+      background-color: #d6ffd6;
+      color: #006f00;
+    }
   </style>
 </head>
 <body>
   <h1>Malla Interactiva - Enfermería</h1>
+  <div class="progreso">Avance: <span id="porcentaje">0%</span></div>
   <div id="contenedor"></div>
   <script>
     const malla = [
@@ -36,6 +94,14 @@
 
     const estados = ["Pendiente", "En curso", "Aprobado"];
     const contenedor = document.getElementById("contenedor");
+    const porcentajeSpan = document.getElementById("porcentaje");
+    let totalRamos = 0;
+    let aprobados = 0;
+
+    const actualizarProgreso = () => {
+      const porcentaje = ((aprobados / totalRamos) * 100).toFixed(1);
+      porcentajeSpan.textContent = `${porcentaje}%`;
+    };
 
     malla.forEach((ramos, idx) => {
       const semestreDiv = document.createElement("div");
@@ -45,6 +111,7 @@
       const lista = document.createElement("ul");
 
       ramos.forEach((ramo) => {
+        totalRamos++;
         const item = document.createElement("li");
         item.textContent = ramo;
         const boton = document.createElement("button");
@@ -53,8 +120,14 @@
         boton.onclick = () => {
           const actual = estados.indexOf(boton.textContent);
           const siguiente = (actual + 1) % estados.length;
+          const anteriorClase = estados[actual].toLowerCase();
+          const nuevaClase = estados[siguiente].toLowerCase();
+          if (boton.textContent === "Aprobado") aprobados--;
+          if (estados[siguiente] === "Aprobado") aprobados++;
           boton.textContent = estados[siguiente];
-          boton.className = estados[siguiente].toLowerCase();
+          boton.classList.remove(anteriorClase);
+          boton.classList.add(nuevaClase);
+          actualizarProgreso();
         };
         item.appendChild(boton);
         lista.appendChild(item);
@@ -64,7 +137,8 @@
       semestreDiv.appendChild(lista);
       contenedor.appendChild(semestreDiv);
     });
+
+    actualizarProgreso();
   </script>
 </body>
 </html>
-# malla-enf-uandes
